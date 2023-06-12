@@ -9,7 +9,7 @@ public class MazeGenerator : MonoBehaviour
 
     public Cell CellPrefab;
     public Vector3 CellSize = new Vector3(1, 1, 0);
-    public HintRenderer HintRenderer;
+    public HintRenderer hintRenderer;
     public int Width = 10;
     public int Height = 10;
     public bool isRemoved = false;
@@ -21,8 +21,9 @@ public class MazeGenerator : MonoBehaviour
        // MazeGenerator generator = new MazeGenerator();
         maze = GenerateMaze();
         componentLineRenderer = GetComponent<LineRenderer>();
+        hintRenderer = GetComponent<HintRenderer>();
 
-        /*for (int x = 0; x < maze.cells.GetLength(0); x++)
+        for (int x = 0; x < maze.cells.GetLength(0); x++)
         {
             for (int y = 0; y < maze.cells.GetLength(1); y++)
             {
@@ -31,9 +32,9 @@ public class MazeGenerator : MonoBehaviour
                 c.WallLeft.SetActive(maze.cells[x, y].WallLeft);
                 c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
             }
-        }*/
+        }
 
-        //HintRenderer.DrawPath();
+        // hintRenderer.DrawPath();
     }
 
     private void Update()
@@ -53,7 +54,6 @@ public class MazeGenerator : MonoBehaviour
             maze.finishPosition = PlaceMazeExit(maze.cells);
             isRemoved = false;
         }
-
     }
 
     public Maze GenerateMaze()
@@ -122,7 +122,7 @@ public class MazeGenerator : MonoBehaviour
                 chosen.DistanceFromStart = current.DistanceFromStart + 1;
                 current = chosen;
                 Debug.Log("Before");
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(0.03f);
                 Debug.Log("after");
             }
             else
@@ -132,7 +132,9 @@ public class MazeGenerator : MonoBehaviour
             //yield return new WaitForSeconds(0.5f);
         } while (stack.Count > 0);
         isRemoved = true;
-        HintRenderer.DrawPath();
+
+        hintRenderer.DrawPath();
+
         //isRemoved = true;
         //yield return null;
 
@@ -180,7 +182,5 @@ public class MazeGenerator : MonoBehaviour
     {
 
     }
-
-
 }
 

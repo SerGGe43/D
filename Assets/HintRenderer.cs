@@ -19,9 +19,10 @@ public class HintRenderer : MonoBehaviour
         int y = maze.finishPosition.y;
         List<Vector3> positions = new List<Vector3>();
 
-        while ((x != 0 || y != 0) && positions.Count < 10000)
+        while ((x != 0 || y != 0))// && positions.Count < 10000)
         {
-            positions.Add(new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z));
+        	Debug.Log("hint before");
+            positions.Add(new Vector3((x + 1) * MazeSpawner.CellSize.x, (y + 1) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
 
             MazeGeneratorCell currentCell = maze.cells[x, y];
 
@@ -49,6 +50,7 @@ public class HintRenderer : MonoBehaviour
             {
                 y++;
             }
+        	Debug.Log("hint after");
         }
 
         positions.Add(Vector3.zero);
