@@ -17,7 +17,6 @@ public class MazeGenerator : MonoBehaviour
 
     private void Start()
     {
-       // MazeGenerator generator = new MazeGenerator();
         maze = GenerateMaze();
         MazeUpdate();
         StartCoroutine(RemoveWallsWithBacktracker());
@@ -87,16 +86,12 @@ public class MazeGenerator : MonoBehaviour
             if (unvisitedNeighbours.Count > 0)
             {
                 MazeGeneratorCell chosen = unvisitedNeighbours[UnityEngine.Random.Range(0, unvisitedNeighbours.Count)];
-                //yield return new WaitForSeconds(0.5f);
-                //Invoke("pause", 20f);
                 RemoveWall(current, chosen);
                 chosen.Visited = true;
                 stack.Push(chosen);
                 chosen.DistanceFromStart = current.DistanceFromStart + 1;
                 current = chosen;
-                Debug.Log("Before");
-                yield return new WaitForSeconds(0.03f);
-                Debug.Log("after");
+                yield return new WaitForSeconds(0.02f);
             }
             else
             {
