@@ -118,6 +118,7 @@ public class MazeGenerator : MonoBehaviour
         // hintRenderer = GetComponent<HintRenderer>();
 
         hintRenderer.DrawPath();
+        //hintRenderer.Lee();
     }
 
     private void RemoveWall(MazeGeneratorCell a, MazeGeneratorCell b)
