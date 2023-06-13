@@ -115,9 +115,9 @@ public class MazeGenerator : MonoBehaviour
                 c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
             }
         }
-        hintRenderer = GetComponent<HintRenderer>();
+        // hintRenderer = GetComponent<HintRenderer>();
 
-        // hintRenderer.DrawPath();
+        hintRenderer.DrawPath();
     }
 
     private void RemoveWall(MazeGeneratorCell a, MazeGeneratorCell b)
