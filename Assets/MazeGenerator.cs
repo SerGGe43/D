@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class MazeGenerator : MonoBehaviour
 {
-
+    public ProtoCell ProtoCellPrefab;
     public Cell CellPrefab;
     public Vector3 CellSize = new Vector3(1, 1, 0);
     public HintRenderer hintRenderer;
@@ -14,87 +14,60 @@ public class MazeGenerator : MonoBehaviour
     public int Height = 10;
     public bool isRemoved = false;
     public Maze maze;
-    private LineRenderer componentLineRenderer;
 
     private void Start()
     {
        // MazeGenerator generator = new MazeGenerator();
         maze = GenerateMaze();
-        componentLineRenderer = GetComponent<LineRenderer>();
-        hintRenderer = GetComponent<HintRenderer>();
-
-        for (int x = 0; x < maze.cells.GetLength(0); x++)
-        {
-            for (int y = 0; y < maze.cells.GetLength(1); y++)
-            {
-                Cell c = Instantiate(CellPrefab, new Vector3(x * CellSize.x, y * CellSize.y, y * CellSize.z), Quaternion.identity);
-
-                c.WallLeft.SetActive(maze.cells[x, y].WallLeft);
-                c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
-            }
-        }
-
-        // hintRenderer.DrawPath();
+        MazeUpdate();
+        StartCoroutine(RemoveWallsWithBacktracker());
     }
 
-    private void Update()
+    private void MazeUpdate()
     {
         for (int x = 0; x < maze.cells.GetLength(0); x++)
         {
             for (int y = 0; y < maze.cells.GetLength(1); y++)
             {
-                Cell c = Instantiate(CellPrefab, new Vector3(x * CellSize.x, y * CellSize.y, y * CellSize.z), Quaternion.identity);
+                ProtoCell c = Instantiate(ProtoCellPrefab, new Vector3(x * CellSize.x, y * CellSize.y, y * CellSize.z), Quaternion.identity);
 
                 c.WallLeft.SetActive(maze.cells[x, y].WallLeft);
                 c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
             }
-        }
-        if (isRemoved)
-        {
-            maze.finishPosition = PlaceMazeExit(maze.cells);
-            isRemoved = false;
         }
     }
 
     public Maze GenerateMaze()
     {
-        MazeGeneratorCell[,] cells = new MazeGeneratorCell[Width, Height];
+        MazeGeneratorCell[,] Cells = new MazeGeneratorCell[Width, Height];
 
-        for (int x = 0; x < cells.GetLength(0); x++)
+        for (int x = 0; x < Cells.GetLength(0); x++)
         {
-            for (int y = 0; y < cells.GetLength(1); y++)
+            for (int y = 0; y < Cells.GetLength(1); y++)
             {
-                cells[x, y] = new MazeGeneratorCell {X = x, Y = y};
+                Cells[x, y] = new MazeGeneratorCell {X = x, Y = y};
             }
         }
 
-        for (int x = 0; x < cells.GetLength(0); x++)
+        for (int x = 0; x < Cells.GetLength(0); x++)
         {
-            cells[x, Height - 1].WallLeft = false;
+            Cells[x, Height - 1].WallLeft = false;
         }
 
-        for (int y = 0; y < cells.GetLength(1); y++)
+        for (int y = 0; y < Cells.GetLength(1); y++)
         {
-            cells[Width - 1, y].WallBottom = false;
+            Cells[Width - 1, y].WallBottom = false;
         }
-
-        StartCoroutine(RemoveWallsWithBacktracker(cells));
-        //while (!isRemoved) ;
-
 
         Maze maze = new Maze();
-
-        maze.cells = cells;
-        //maze.finishPosition = PlaceMazeExit(cells);
+        maze.cells = Cells;
 
         return maze;
     }
 
-    IEnumerator RemoveWallsWithBacktracker(MazeGeneratorCell[,] maze)
+    IEnumerator RemoveWallsWithBacktracker()
     {
-        bool tp = true;
-        float timeTP;
-        MazeGeneratorCell current = maze[0, 0];
+        MazeGeneratorCell current = maze.cells[0, 0];
         current.Visited = true;
         current.DistanceFromStart = 0;
 
@@ -106,10 +79,10 @@ public class MazeGenerator : MonoBehaviour
             int x = current.X;
             int y = current.Y;
 
-            if (x > 0 && !maze[x - 1, y].Visited) unvisitedNeighbours.Add(maze[x - 1, y]);
-            if (y > 0 && !maze[x, y - 1].Visited) unvisitedNeighbours.Add(maze[x, y - 1]);
-            if (x < Width - 2 && !maze[x + 1, y].Visited) unvisitedNeighbours.Add(maze[x + 1, y]);
-            if (y < Height - 2 && !maze[x, y + 1].Visited) unvisitedNeighbours.Add(maze[x, y + 1]);
+            if (x > 0 && !maze.cells[x - 1, y].Visited) unvisitedNeighbours.Add(maze.cells[x - 1, y]);
+            if (y > 0 && !maze.cells[x, y - 1].Visited) unvisitedNeighbours.Add(maze.cells[x, y - 1]);
+            if (x < Width - 2 && !maze.cells[x + 1, y].Visited) unvisitedNeighbours.Add(maze.cells[x + 1, y]);
+            if (y < Height - 2 && !maze.cells[x, y + 1].Visited) unvisitedNeighbours.Add(maze.cells[x, y + 1]);
 
             if (unvisitedNeighbours.Count > 0)
             {
@@ -129,15 +102,27 @@ public class MazeGenerator : MonoBehaviour
             {
                 current = stack.Pop();
             }
-            //yield return new WaitForSeconds(0.5f);
+
+            MazeUpdate();
+
         } while (stack.Count > 0);
-        isRemoved = true;
 
-        hintRenderer.DrawPath();
+        maze.finishPosition = PlaceMazeExit();
+        MazeUpdate();
 
-        //isRemoved = true;
-        //yield return null;
+        for (int x = 0; x < maze.cells.GetLength(0); x++)
+        {
+            for (int y = 0; y < maze.cells.GetLength(1); y++)
+            {
+                Cell c = Instantiate(CellPrefab, new Vector3(x * CellSize.x, y * CellSize.y, y * CellSize.z), Quaternion.identity);
 
+                c.WallLeft.SetActive(maze.cells[x, y].WallLeft);
+                c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
+            }
+        }
+        hintRenderer = GetComponent<HintRenderer>();
+
+        // hintRenderer.DrawPath();
     }
 
     private void RemoveWall(MazeGeneratorCell a, MazeGeneratorCell b)
@@ -154,26 +139,26 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    private Vector2Int PlaceMazeExit(MazeGeneratorCell[,] maze)
+    private Vector2Int PlaceMazeExit()
     {
-        MazeGeneratorCell furthest = maze[0, 0];
+        MazeGeneratorCell furthest = maze.cells[0, 0];
 
-        for (int x = 0; x < maze.GetLength(0); x++)
+        for (int x = 0; x < maze.cells.GetLength(0); x++)
         {
-            if (maze[x, Height - 2].DistanceFromStart > furthest.DistanceFromStart) furthest = maze[x, Height - 2];
-            if (maze[x, 0].DistanceFromStart > furthest.DistanceFromStart) furthest = maze[x, 0];
+            if (maze.cells[x, Height - 2].DistanceFromStart > furthest.DistanceFromStart) furthest = maze.cells[x, Height - 2];
+            if (maze.cells[x, 0].DistanceFromStart > furthest.DistanceFromStart) furthest = maze.cells[x, 0];
         }
 
-        for (int y = 0; y < maze.GetLength(1); y++)
+        for (int y = 0; y < maze.cells.GetLength(1); y++)
         {
-            if (maze[Width - 2, y].DistanceFromStart > furthest.DistanceFromStart) furthest = maze[Width - 2, y];
-            if (maze[0, y].DistanceFromStart > furthest.DistanceFromStart) furthest = maze[0, y];
+            if (maze.cells[Width - 2, y].DistanceFromStart > furthest.DistanceFromStart) furthest = maze.cells[Width - 2, y];
+            if (maze.cells[0, y].DistanceFromStart > furthest.DistanceFromStart) furthest = maze.cells[0, y];
         }
 
         if (furthest.X == 0) furthest.WallLeft = false;
         else if (furthest.Y == 0) furthest.WallBottom = false;
-        else if (furthest.X == Width - 2) maze[furthest.X + 1, furthest.Y].WallLeft = false;
-        else if (furthest.Y == Height - 2) maze[furthest.X, furthest.Y + 1].WallBottom = false;
+        else if (furthest.X == Width - 2) maze.cells[furthest.X + 1, furthest.Y].WallLeft = false;
+        else if (furthest.Y == Height - 2) maze.cells[furthest.X, furthest.Y + 1].WallBottom = false;
 
         return new Vector2Int(furthest.X, furthest.Y);
     }

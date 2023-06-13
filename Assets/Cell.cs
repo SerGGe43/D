@@ -7,6 +7,6 @@ public class Cell : MonoBehaviour
 
     public void Start()
     {
-        Destroy(this.gameObject, 0.1f);
+        // Destroy(this.gameObject, 0.1f);
     }
 }
