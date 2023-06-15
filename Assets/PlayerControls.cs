@@ -14,14 +14,9 @@ public class PlayerControls : MonoBehaviour
     private void Update()
     {
         componentRigidbody.velocity = Vector2.zero;
-        if (Input.GetKey(KeyCode.LeftArrow)) componentRigidbody.velocity += Vector2.left * Speed;
-        if (Input.GetKey(KeyCode.RightArrow)) componentRigidbody.velocity += Vector2.right * Speed;
-        if (Input.GetKey(KeyCode.UpArrow)) componentRigidbody.velocity += Vector2.up * Speed;
-        if (Input.GetKey(KeyCode.DownArrow)) componentRigidbody.velocity += Vector2.down * Speed;
-
-        if (Input.GetKey(KeyCode.A)) componentRigidbody.velocity += Vector2.left * Speed;
-        if (Input.GetKey(KeyCode.D)) componentRigidbody.velocity += Vector2.right * Speed;
-        if (Input.GetKey(KeyCode.W)) componentRigidbody.velocity += Vector2.up * Speed;
-        if (Input.GetKey(KeyCode.S)) componentRigidbody.velocity += Vector2.down * Speed;
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) componentRigidbody.velocity += Vector2.left * Speed;
+        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) componentRigidbody.velocity += Vector2.right * Speed;
+        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) componentRigidbody.velocity += Vector2.up * Speed;
+        if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S)) componentRigidbody.velocity += Vector2.down * Speed;
     }
 }
