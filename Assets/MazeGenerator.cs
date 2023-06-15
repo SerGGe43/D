@@ -23,7 +23,7 @@ public class MazeGenerator : MonoBehaviour
 
     private void Update()
     {
-        if (ReadyToSolve && Input.GetKey(KeyCode.H)) hintRenderer.DrawPath();
+        if (ReadyToSolve && Input.GetKey(KeyCode.H)) StartCoroutine(hintRenderer.DrawPath());
     }
 
     private void MazeUpdate()

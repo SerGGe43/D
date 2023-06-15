@@ -12,18 +12,21 @@ public class HintRenderer : MonoBehaviour
         componentLineRenderer = GetComponent<LineRenderer>();
     }
 
-    public void DrawPath()
+    public IEnumerator<object> DrawPath()
     {
         Maze maze = MazeSpawner.maze;
         int x = maze.finishPosition.x;
         int y = maze.finishPosition.y;
         List<Vector3> positions = new List<Vector3>();
 
-        while ((x != 0 || y != 0))// && positions.Count < 10000)
+        while ((x != 0 || y != 0))
         {
-        	// Debug.Log("hint before");
             positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, (y) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
 
+        	// yield return new WaitForSeconds(0.1f);
+
+        	// componentLineRenderer.positionCount = positions.Count;
+        	// componentLineRenderer.SetPositions(positions.ToArray());
             MazeGeneratorCell currentCell = maze.cells[x, y];
 
             if (x > 0 &&
@@ -50,12 +53,23 @@ public class HintRenderer : MonoBehaviour
             {
                 y++;
             }
-        	// Debug.Log("hint after");
         }
 
-        positions.Add(Vector3.zero);
-        componentLineRenderer.positionCount = positions.Count;
-        componentLineRenderer.SetPositions(positions.ToArray());
+        List<Vector3> lines = new List<Vector3>();
+        lines.Add(Vector3.zero);
+
+        for (int i = positions.Count - 1; i >= 0; i--)
+        {
+        	yield return new WaitForSeconds(0.02f);
+        	lines.Add(positions[i]);
+
+	        componentLineRenderer.positionCount = lines.Count;
+	        componentLineRenderer.SetPositions(lines.ToArray());
+        }
+
+        // positions.Add(Vector3.zero);
+        // componentLineRenderer.positionCount = positions.Count;
+        // componentLineRenderer.SetPositions(positions.ToArray());
     }
 
     public void Lee()
