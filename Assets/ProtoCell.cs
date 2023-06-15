@@ -7,6 +7,6 @@ public class ProtoCell : MonoBehaviour
 
     public void Start()
     {
-        Destroy(this.gameObject, 0.04f);
+        Destroy(this.gameObject, MazeGenerator.RenderPause * 1.7f);
     }
 }

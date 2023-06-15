@@ -12,14 +12,18 @@ public class MazeGenerator : MonoBehaviour
     public HintRenderer hintRenderer;
     public int Width = 10;
     public int Height = 10;
-    public bool isRemoved = false;
+    public bool ReadyToSolve = false;
     public Maze maze;
+    public static float RenderPause = 0.03f;
 
     private void Start()
     {
-        maze = GenerateMaze();
-        MazeUpdate();
-        StartCoroutine(RemoveWallsWithBacktracker());
+        StartCoroutine(GenerateMaze());
+    }
+
+    private void Update()
+    {
+        if (ReadyToSolve && Input.GetKey(KeyCode.H)) hintRenderer.DrawPath();
     }
 
     private void MazeUpdate()
@@ -36,7 +40,7 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    public Maze GenerateMaze()
+    public Maze CreateMaze()
     {
         MazeGeneratorCell[,] Cells = new MazeGeneratorCell[Width, Height];
 
@@ -64,8 +68,11 @@ public class MazeGenerator : MonoBehaviour
         return maze;
     }
 
-    IEnumerator RemoveWallsWithBacktracker()
+    IEnumerator GenerateMaze()
     {
+        maze = CreateMaze();
+        MazeUpdate();
+
         MazeGeneratorCell current = maze.cells[0, 0];
         current.Visited = true;
         current.DistanceFromStart = 0;
@@ -91,7 +98,7 @@ public class MazeGenerator : MonoBehaviour
                 stack.Push(chosen);
                 chosen.DistanceFromStart = current.DistanceFromStart + 1;
                 current = chosen;
-                yield return new WaitForSeconds(0.02f);
+                yield return new WaitForSeconds(RenderPause);
             }
             else
             {
@@ -117,7 +124,8 @@ public class MazeGenerator : MonoBehaviour
         }
         // hintRenderer = GetComponent<HintRenderer>();
 
-        hintRenderer.DrawPath();
+        yield return new WaitForSeconds(RenderPause);
+        ReadyToSolve = true;
         //hintRenderer.Lee();
     }
 
