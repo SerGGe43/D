@@ -24,6 +24,7 @@ public class MazeGenerator : MonoBehaviour
     private void Update()
     {
         if (ReadyToSolve && Input.GetKey(KeyCode.H)) StartCoroutine(hintRenderer.DrawPath());
+        if (ReadyToSolve && Input.GetKey(KeyCode.L)) StartCoroutine(hintRenderer.Lee());
     }
 
     private void MazeUpdate()
@@ -126,7 +127,6 @@ public class MazeGenerator : MonoBehaviour
 
         yield return new WaitForSeconds(RenderPause);
         ReadyToSolve = true;
-        //hintRenderer.Lee();
     }
 
     private void RemoveWall(MazeGeneratorCell a, MazeGeneratorCell b)

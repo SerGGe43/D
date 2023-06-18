@@ -7,6 +7,8 @@ public class HintRenderer : MonoBehaviour
 
     private LineRenderer componentLineRenderer;
 
+    public Floor FloorPrefab;
+
     private void Start()
     {
         componentLineRenderer = GetComponent<LineRenderer>();
@@ -14,6 +16,7 @@ public class HintRenderer : MonoBehaviour
 
     public IEnumerator<object> DrawPath()
     {
+        componentLineRenderer.SetColors(Color.green, Color.green);
         Maze maze = MazeSpawner.maze;
         int x = maze.finishPosition.x;
         int y = maze.finishPosition.y;
@@ -72,8 +75,9 @@ public class HintRenderer : MonoBehaviour
         // componentLineRenderer.SetPositions(positions.ToArray());
     }
 
-    public void Lee()
+    public IEnumerator<object> Lee()
     {
+        componentLineRenderer.SetColors(Color.red, Color.red);
         Maze maze = MazeSpawner.maze;
         int width = MazeSpawner.Width;
         int height = MazeSpawner.Height;
@@ -81,10 +85,16 @@ public class HintRenderer : MonoBehaviour
         int ay = 0;
         int bx = maze.finishPosition.x;
         int by = maze.finishPosition.y;
+        bool[,] visited = new bool[width-1, height-1];
         //int[] dx = { 1, 0, -1, 0 };   
         //int[] dy = { 0, 1, 0, -1 };
+        for (int i = 0; i < width-1; i++)
+        {
+            for (int j = 0; j < height - 1; j++) visited[i, j] = false;
+        }
         int d, x, y, k, len;
         List<Vector3> positions = new List<Vector3>();
+        List<Vector3> positions1 = new List<Vector3>();
         bool stop = true;
         d = 0;
         //int[,] distance = new int[width,height];
@@ -94,12 +104,13 @@ public class HintRenderer : MonoBehaviour
         {
             Debug.Log("Cycle");
             stop = true;
-            for (x = 0; x < width-2; x++)
+            for (x = 0; x < width-1; x++)
             {
-                for (y = 0; y < height-2; y++)
+                for (y = 0; y < height-1; y++)
                 {
                     if (maze.cells[x,y].DistanceFromStart == d)
                     {
+                        visited[x, y] = true;
                         for (k = 0; k < 4; k++)
                         {
                             int iy, ix;
@@ -107,9 +118,9 @@ public class HintRenderer : MonoBehaviour
                             {
                                 iy = y + 0;
                                 ix = x + 1;
-                                if (iy >= 0 && iy < height-2 && ix >= 0 && ix < width-2 && !maze.cells[ix, iy].WallLeft)
+                                if (iy >= 0 && iy < height-1 && ix >= 0 && ix < width-1 && !maze.cells[ix, iy].WallLeft && !visited[ix,iy])
                                 {
-                                    //stop = false;
+                                    stop = false;
                                     maze.cells[ix, iy].DistanceFromStart = d + 1;      
                                 }
                             }
@@ -117,9 +128,9 @@ public class HintRenderer : MonoBehaviour
                             {
                                 iy = y + 1;
                                 ix = x + 0;
-                                if (iy >= 0 && iy < height-2 && ix >= 0 && ix < width-2 && !maze.cells[ix, iy].WallBottom)
+                                if (iy >= 0 && iy < height-1 && ix >= 0 && ix < width-1 && !maze.cells[ix, iy].WallBottom && !visited[ix, iy])
                                 {
-                                   //stop = false;
+                                    stop = false;
                                     maze.cells[ix, iy].DistanceFromStart = d + 1;      
                                 }
                             }
@@ -127,9 +138,9 @@ public class HintRenderer : MonoBehaviour
                             {
                                 iy = y + 0;
                                 ix = x - 1;
-                                if (iy >= 0 && iy < height-2 && ix >= 0 && ix < width-2 && !maze.cells[x, y].WallLeft)
+                                if (iy >= 0 && iy < height-1 && ix >= 0 && ix < width-1 && !maze.cells[x, y].WallLeft && !visited[ix, iy])
                                 {
-                                    //stop = false;
+                                    stop = false;
                                     maze.cells[ix, iy].DistanceFromStart = d + 1;
                                 }
                             }
@@ -137,9 +148,9 @@ public class HintRenderer : MonoBehaviour
                             {
                                 iy = y - 1;
                                 ix = x + 0;
-                                if (iy >= 0 && iy < height-2 && ix >= 0 && ix < width-2 && !maze.cells[x, y].WallBottom)
+                                if (iy >= 0 && iy < height-1 && ix >= 0 && ix < width-1 && !maze.cells[x, y].WallBottom && !visited[ix, iy])
                                 {
-                                    //stop = false;
+                                    stop = false;
                                     maze.cells[ix, iy].DistanceFromStart = d + 1;
                                 }
                             }
@@ -151,6 +162,25 @@ public class HintRenderer : MonoBehaviour
         } while (!stop);
         Debug.Log("Done");
         len = maze.cells[bx, by].DistanceFromStart;
+        d = 0;
+        do
+        {
+            for (x = 0; x < width - 1; x++)
+            {
+                for (y = 0; y < height - 1; y++)
+                {
+                    if (maze.cells[x, y].DistanceFromStart == d)
+                    {
+                        Debug.Log(x);
+                        Debug.Log(y);
+                        Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                        //c.floor.SetActive(true);
+                        yield return new WaitForSeconds(0.02f);
+                    }
+                }
+            }
+            d++;
+        } while (d < len);
         x = bx;
         y = by;
         d = len;
@@ -159,6 +189,9 @@ public class HintRenderer : MonoBehaviour
         {
             Debug.Log("Cycle2");
             positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, (y) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+            componentLineRenderer.positionCount = positions.Count;
+            componentLineRenderer.SetPositions(positions.ToArray());
+            yield return new WaitForSeconds(0.02f);
             d--;
             for (k = 0; k < 4; ++k)
             {
@@ -167,7 +200,7 @@ public class HintRenderer : MonoBehaviour
                 {
                     iy = y + 0;
                     ix = x + 1;
-                    if (iy >= 0 && iy < height-2 && ix >= 0 && ix < width-2 && maze.cells[ix, iy].DistanceFromStart == d)
+                    if (iy >= 0 && iy < height-1 && ix >= 0 && ix < width-1 && maze.cells[ix, iy].DistanceFromStart == d)
                     {
                         x += 1;
                         y += 0;
@@ -178,7 +211,7 @@ public class HintRenderer : MonoBehaviour
                 {
                     iy = y + 1;
                     ix = x + 0;
-                    if (iy >= 0 && iy < height-2 && ix >= 0 && ix < width-2 && maze.cells[ix, iy].DistanceFromStart == d)
+                    if (iy >= 0 && iy < height-1 && ix >= 0 && ix < width-1 && maze.cells[ix, iy].DistanceFromStart == d)
                     {
                         x += 0;
                         y += 1;
@@ -189,7 +222,7 @@ public class HintRenderer : MonoBehaviour
                 {
                     iy = y + 0;
                     ix = x - 1;
-                    if (iy >= 0 && iy < height-2 && ix >= 0 && ix < width-2 && maze.cells[ix, iy].DistanceFromStart == d)
+                    if (iy >= 0 && iy < height-1 && ix >= 0 && ix < width-1 && maze.cells[ix, iy].DistanceFromStart == d)
                     {
                         x += -1;
                         y += 0;
@@ -200,7 +233,7 @@ public class HintRenderer : MonoBehaviour
                 {
                     iy = y - 1;
                     ix = x + 0;
-                    if (iy >= 0 && iy < height-2 && ix >= 0 && ix < width-2 && maze.cells[ix, iy].DistanceFromStart == d)
+                    if (iy >= 0 && iy < height-1 && ix >= 0 && ix < width-1 && maze.cells[ix, iy].DistanceFromStart == d)
                     {
                         x += 0;
                         y += -1;
@@ -209,9 +242,11 @@ public class HintRenderer : MonoBehaviour
                 }
             }
         }
+        //positions.Clear();
         Debug.Log("NeWhile");
-        //positions.Add(Vector3.zero);
+        positions.Add(Vector3.zero);
         componentLineRenderer.positionCount = positions.Count;
         componentLineRenderer.SetPositions(positions.ToArray());
+        positions.Clear();
     }
 }
