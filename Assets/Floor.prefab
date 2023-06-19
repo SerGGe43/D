@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 336542024927483092}
   - component: {fileID: 7495204110501435559}
+  - component: {fileID: 3755543960835817279}
   m_Layer: 0
   m_Name: Floor
   m_TagString: Untagged
@@ -129,6 +130,19 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 0
   m_Loop: 0
+--- !u!114 &3755543960835817279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5104677157483782402}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37b42c152edcd524ea87aade53ccb97c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  componentLineRenderer: {fileID: 0}
 --- !u!1 &9067892244650691841
 GameObject:
   m_ObjectHideFlags: 0

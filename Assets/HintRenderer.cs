@@ -168,6 +168,9 @@ public class HintRenderer : MonoBehaviour
                         Debug.Log(x);
                         Debug.Log(y);
                         Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                        LineRenderer FloorColor;
+                        FloorColor = c.floor.GetComponent<LineRenderer>();
+                        FloorColor.SetColors(new Color(1 - d * 0.01f, 0, d * 0.01f), new Color(1 - d * 0.01f, 0, d * 0.01f));
                         //c.floor.SetActive(true);
                         yield return new WaitForSeconds(HintRenderTimeout);
                     }
