@@ -9,6 +9,8 @@ public class HintRenderer : MonoBehaviour
 
     public Floor FloorPrefab;
 
+    public List<List<Floor>> floors;
+
     public static float HintRenderTimeout = 0.1f;
 
     private void Start()
@@ -157,20 +159,35 @@ public class HintRenderer : MonoBehaviour
         Debug.Log("Done");
         len = maze.cells[bx, by].DistanceFromStart;
         d = 0;
+        floors = new List<List<Floor>>();
+        for (x = 0; x < width - 1; x++)
+        {
+            floors.Add(new List<Floor>());
+            for (y = 0; y < height - 1; y++)
+            {
+                Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                c.floor.SetActive(false);
+                floors[x].Add(c);
+
+            }
+        }
         do
         {
             for (x = 0; x < width - 1; x++)
             {
+                //floors.Add(new List<Floor>());
                 for (y = 0; y < height - 1; y++)
                 {
                     if (maze.cells[x, y].DistanceFromStart == d)
                     {
                         Debug.Log(x);
                         Debug.Log(y);
-                        Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                        floors[x][y].floor.SetActive(true);
+                        //Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
                         LineRenderer FloorColor;
-                        FloorColor = c.floor.GetComponent<LineRenderer>();
-                        FloorColor.SetColors(new Color(1 - d * 0.01f, 0, d * 0.01f), new Color(1 - d * 0.01f, 0, d * 0.01f));
+                        FloorColor = floors[x][y].floor.GetComponent<LineRenderer>();
+                        FloorColor.SetColors(new Color(1 - d * 0.01f, d*0.001f, d * 0.01f), new Color(1 - d * 0.01f, d * 0.001f, d * 0.01f));
+                        //floors[x].Add(c);
                         //c.floor.SetActive(true);
                         yield return new WaitForSeconds(HintRenderTimeout);
                     }
@@ -178,9 +195,18 @@ public class HintRenderer : MonoBehaviour
             }
             d++;
         } while (d < len);
+        d = len;
+        for (x = width - 2; x > -1; x--)
+        {
+            for (y = height - 2; y > -1; y--)
+            {
+                floors[x][y].floor.SetActive(false);
+                yield return new WaitForSeconds(0.01f);
+            }
+        }
+        floors[0][0].floor.SetActive(false);
         x = bx;
         y = by;
-        d = len;
         Debug.Log("While");
         while (d > 0)
         {
@@ -240,6 +266,7 @@ public class HintRenderer : MonoBehaviour
             }
         }
         //positions.Clear();
+        floors[0][0].floor.SetActive(false);
         Debug.Log("NeWhile");
         positions.Add(Vector3.zero);
         componentLineRenderer.positionCount = positions.Count;
