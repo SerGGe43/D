@@ -6,15 +6,16 @@ using UnityEngine;
 
 public class MazeGenerator : MonoBehaviour
 {
-    public ProtoCell ProtoCellPrefab;
     public Cell CellPrefab;
     public Vector3 CellSize = new Vector3(1, 1, 0);
-    public HintRenderer hintRenderer;
     public int Width = 10;
     public int Height = 10;
-    public bool ReadyToSolve = false;
     public Maze maze;
-    public static float RenderPause = 0.03f;
+    public List<List<Cell>> cells;
+    public static float MazeRenderTimeout = 0.01f;
+
+    public bool ReadyToSolve = false;
+    public HintRenderer hintRenderer;
 
     private void Start()
     {
@@ -25,20 +26,6 @@ public class MazeGenerator : MonoBehaviour
     {
         if (ReadyToSolve && Input.GetKey(KeyCode.H)) StartCoroutine(hintRenderer.DrawPath());
         if (ReadyToSolve && Input.GetKey(KeyCode.L)) StartCoroutine(hintRenderer.Lee());
-    }
-
-    private void MazeUpdate()
-    {
-        for (int x = 0; x < maze.cells.GetLength(0); x++)
-        {
-            for (int y = 0; y < maze.cells.GetLength(1); y++)
-            {
-                ProtoCell c = Instantiate(ProtoCellPrefab, new Vector3(x * CellSize.x, y * CellSize.y, y * CellSize.z), Quaternion.identity);
-
-                c.WallLeft.SetActive(maze.cells[x, y].WallLeft);
-                c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
-            }
-        }
     }
 
     public Maze CreateMaze()
@@ -72,7 +59,21 @@ public class MazeGenerator : MonoBehaviour
     IEnumerator GenerateMaze()
     {
         maze = CreateMaze();
-        MazeUpdate();
+
+        cells = new List<List<Cell>>();
+
+        for (int x = 0; x < maze.cells.GetLength(0); x++)
+        {
+        	cells.Add(new List<Cell>());
+            for (int y = 0; y < maze.cells.GetLength(1); y++)
+            {
+                Cell c = Instantiate(CellPrefab, new Vector3(x * CellSize.x, y * CellSize.y, y * CellSize.z), Quaternion.identity);
+
+                c.WallLeft.SetActive(maze.cells[x, y].WallLeft);
+                c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
+                cells[x].Add(c);
+            }
+        }
 
         MazeGeneratorCell current = maze.cells[0, 0];
         current.Visited = true;
@@ -99,33 +100,17 @@ public class MazeGenerator : MonoBehaviour
                 stack.Push(chosen);
                 chosen.DistanceFromStart = current.DistanceFromStart + 1;
                 current = chosen;
-                yield return new WaitForSeconds(RenderPause);
+                yield return new WaitForSeconds(MazeRenderTimeout);
             }
             else
             {
                 current = stack.Pop();
             }
-
-            MazeUpdate();
-
         } while (stack.Count > 0);
 
         maze.finishPosition = PlaceMazeExit();
-        MazeUpdate();
 
-        for (int x = 0; x < maze.cells.GetLength(0); x++)
-        {
-            for (int y = 0; y < maze.cells.GetLength(1); y++)
-            {
-                Cell c = Instantiate(CellPrefab, new Vector3(x * CellSize.x, y * CellSize.y, y * CellSize.z), Quaternion.identity);
-
-                c.WallLeft.SetActive(maze.cells[x, y].WallLeft);
-                c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
-            }
-        }
-        // hintRenderer = GetComponent<HintRenderer>();
-
-        yield return new WaitForSeconds(RenderPause);
+        yield return new WaitForSeconds(MazeRenderTimeout);
         ReadyToSolve = true;
     }
 
@@ -133,13 +118,29 @@ public class MazeGenerator : MonoBehaviour
     {
         if (a.X == b.X)
         {
-            if (a.Y > b.Y) a.WallBottom = false;
-            else b.WallBottom = false;
+            if (a.Y > b.Y)
+            {
+            	a.WallBottom = false;
+            	cells[a.X][a.Y].WallBottom.SetActive(false);
+            }
+            else
+            {
+            	b.WallBottom = false;
+            	cells[b.X][b.Y].WallBottom.SetActive(false);
+            }
         }
         else
         {
-            if (a.X > b.X) a.WallLeft = false;
-            else b.WallLeft = false;
+            if (a.X > b.X)
+            {
+            	a.WallLeft = false;
+            	cells[a.X][a.Y].WallLeft.SetActive(false);
+            }
+            else
+            {
+            	b.WallLeft = false;
+            	cells[b.X][b.Y].WallLeft.SetActive(false);
+            }
         }
     }
 
@@ -159,10 +160,26 @@ public class MazeGenerator : MonoBehaviour
             if (maze.cells[0, y].DistanceFromStart > furthest.DistanceFromStart) furthest = maze.cells[0, y];
         }
 
-        if (furthest.X == 0) furthest.WallLeft = false;
-        else if (furthest.Y == 0) furthest.WallBottom = false;
-        else if (furthest.X == Width - 2) maze.cells[furthest.X + 1, furthest.Y].WallLeft = false;
-        else if (furthest.Y == Height - 2) maze.cells[furthest.X, furthest.Y + 1].WallBottom = false;
+        if (furthest.X == 0)
+        {
+        	furthest.WallLeft = false;
+        	cells[furthest.X][furthest.Y].WallLeft.SetActive(false);
+        }
+        else if (furthest.Y == 0)
+        {
+        	furthest.WallBottom = false;
+        	cells[furthest.X][furthest.Y].WallBottom.SetActive(false);
+        }
+        else if (furthest.X == Width - 2)
+        {
+        	maze.cells[furthest.X + 1, furthest.Y].WallLeft = false;
+        	cells[furthest.X + 1][furthest.Y].WallLeft.SetActive(false);
+        }
+        else if (furthest.Y == Height - 2)
+        {
+        	maze.cells[furthest.X, furthest.Y + 1].WallBottom = false;
+        	cells[furthest.X][furthest.Y + 1].WallBottom.SetActive(false);
+        }
 
         return new Vector2Int(furthest.X, furthest.Y);
     }

@@ -279,14 +279,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c977a5c62e2ee854c83d3b08091f5109, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProtoCellPrefab: {fileID: 0}
   CellPrefab: {fileID: 9194031377775642994, guid: 1ce9edbefa5a1d744aa450cd8a6b5e53,
     type: 3}
   CellSize: {x: 1, y: 1, z: 0}
-  hintRenderer: {fileID: 436242421}
   Width: 10
   Height: 10
   ReadyToSolve: 0
+  hintRenderer: {fileID: 436242421}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -722,15 +721,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c977a5c62e2ee854c83d3b08091f5109, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ProtoCellPrefab: {fileID: 4774067745618099656, guid: 6e7360317ec1a284f9d05ef08628afb8,
-    type: 3}
   CellPrefab: {fileID: 9194031377775642994, guid: 1ce9edbefa5a1d744aa450cd8a6b5e53,
     type: 3}
   CellSize: {x: 1, y: 1, z: 0}
-  hintRenderer: {fileID: 436242421}
   Width: 10
   Height: 10
   ReadyToSolve: 0
+  hintRenderer: {fileID: 436242421}
 --- !u!114 &2094133620
 MonoBehaviour:
   m_ObjectHideFlags: 0

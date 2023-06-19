@@ -9,6 +9,8 @@ public class HintRenderer : MonoBehaviour
 
     public Floor FloorPrefab;
 
+    public static float HintRenderTimeout = 0.1f;
+
     private void Start()
     {
         componentLineRenderer = GetComponent<LineRenderer>();
@@ -26,10 +28,6 @@ public class HintRenderer : MonoBehaviour
         {
             positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, (y) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
 
-        	// yield return new WaitForSeconds(0.1f);
-
-        	// componentLineRenderer.positionCount = positions.Count;
-        	// componentLineRenderer.SetPositions(positions.ToArray());
             MazeGeneratorCell currentCell = maze.cells[x, y];
 
             if (x > 0 &&
@@ -63,16 +61,12 @@ public class HintRenderer : MonoBehaviour
 
         for (int i = positions.Count - 1; i >= 0; i--)
         {
-        	yield return new WaitForSeconds(0.02f);
+        	yield return new WaitForSeconds(HintRenderTimeout);
         	lines.Add(positions[i]);
 
 	        componentLineRenderer.positionCount = lines.Count;
 	        componentLineRenderer.SetPositions(lines.ToArray());
         }
-
-        // positions.Add(Vector3.zero);
-        // componentLineRenderer.positionCount = positions.Count;
-        // componentLineRenderer.SetPositions(positions.ToArray());
     }
 
     public IEnumerator<object> Lee()
@@ -175,7 +169,7 @@ public class HintRenderer : MonoBehaviour
                         Debug.Log(y);
                         Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
                         //c.floor.SetActive(true);
-                        yield return new WaitForSeconds(0.02f);
+                        yield return new WaitForSeconds(HintRenderTimeout);
                     }
                 }
             }
@@ -191,7 +185,7 @@ public class HintRenderer : MonoBehaviour
             positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, (y) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
             componentLineRenderer.positionCount = positions.Count;
             componentLineRenderer.SetPositions(positions.ToArray());
-            yield return new WaitForSeconds(0.02f);
+            yield return new WaitForSeconds(HintRenderTimeout);
             d--;
             for (k = 0; k < 4; ++k)
             {
