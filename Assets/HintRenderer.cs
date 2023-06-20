@@ -18,12 +18,12 @@ public class HintRenderer : MonoBehaviour
         componentLineRenderer = GetComponent<LineRenderer>();
     }
 
-    public IEnumerator<object> DrawPath()
+    public IEnumerator<object> DrawPath(int x, int y)
     {
-        componentLineRenderer.SetColors(Color.green, Color.green);
+        //componentLineRenderer.SetColors(Color.green, Color.green);
         Maze maze = MazeSpawner.maze;
-        int x = maze.finishPosition.x;
-        int y = maze.finishPosition.y;
+        //int x = maze.finishPosition[0].x;
+        //int y = maze.finishPosition[0].y;
         List<Vector3> positions = new List<Vector3>();
 
         while ((x != 0 || y != 0))
@@ -71,16 +71,16 @@ public class HintRenderer : MonoBehaviour
         }
     }
 
-    public IEnumerator<object> Lee()
+    public IEnumerator<object> Lee0(int bx, int by)
     {
-        componentLineRenderer.SetColors(Color.red, Color.red);
+        //componentLineRenderer.SetColors(Color.red, Color.red);
         Maze maze = MazeSpawner.maze;
         int width = MazeSpawner.Width;
         int height = MazeSpawner.Height;
         int ax = 0;
         int ay = 0;
-        int bx = maze.finishPosition.x;
-        int by = maze.finishPosition.y;
+        //int bx = maze.finishPosition[0].x;
+        //int by = maze.finishPosition[0].y;
         bool[,] visited = new bool[width-1, height-1];
         //int[] dx = { 1, 0, -1, 0 };   
         //int[] dy = { 0, 1, 0, -1 };
@@ -157,7 +157,7 @@ public class HintRenderer : MonoBehaviour
         len = maze.cells[bx, by].DistanceFromStart;
 
 	
-        componentLineRenderer.SetColors(new Color(1 - len * 0.01f, d * 0.001f, d * 0.01f), Color.red);
+        //componentLineRenderer.SetColors(new Color(1 - len * 0.01f, d * 0.001f, d * 0.01f), Color.red);
 
         d = 0;
         floors = new List<List<Floor>>();
@@ -172,7 +172,9 @@ public class HintRenderer : MonoBehaviour
 
             }
         }
-        do
+        yield return new WaitForSeconds(0.5f);
+        //floors[0][0].floor.SetActive(true);
+        while(d < len)
         {
             for (x = 0; x < width - 1; x++)
             {
@@ -193,20 +195,44 @@ public class HintRenderer : MonoBehaviour
                 }
             }
             d++;
-        } while (d < len);
+        }
         d = len;
 
-	floors.ForEach(delegate(List<Floor> vect)
-	{
-		vect.ForEach(delegate(Floor item)
-		{
-			item.floor.SetActive(false);
-		});
-	});
+	for (x = width - 2; x > -1; x--)
+        {
+            for (y = height - 2; y > -1; y--)
+            {
+                floors[x][y].floor.SetActive(false);
+            }
+        }
 
 
         x = bx;
         y = by;
+        if (!MazeSpawner.cells[x][y + 1].WallBottom)
+        {
+            positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, (y + 1) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+            componentLineRenderer.positionCount = positions.Count;
+            componentLineRenderer.SetPositions(positions.ToArray());
+        }
+        else if (!MazeSpawner.cells[x + 1][y].WallLeft)
+        {
+            positions.Add(new Vector3((x + 1) * MazeSpawner.CellSize.x, (y) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+            componentLineRenderer.positionCount = positions.Count;
+            componentLineRenderer.SetPositions(positions.ToArray());
+        }
+        else if (!MazeSpawner.cells[x][y].WallBottom && y == 0)
+        {
+            positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, (y-1) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+            componentLineRenderer.positionCount = positions.Count;
+            componentLineRenderer.SetPositions(positions.ToArray());
+        }
+        else if(!MazeSpawner.cells[x][y].WallLeft && x == 0)
+        {
+            positions.Add(new Vector3((x - 1) * MazeSpawner.CellSize.x, (y) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+            componentLineRenderer.positionCount = positions.Count;
+            componentLineRenderer.SetPositions(positions.ToArray());
+        }
         while (d > 0)
         {
             positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, (y) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
@@ -264,7 +290,7 @@ public class HintRenderer : MonoBehaviour
             }
         }
         // positions.Clear();
-        // floors[0][0].floor.SetActive(false);
+        floors[0][0].floor.SetActive(false);
         positions.Add(Vector3.zero);
         componentLineRenderer.positionCount = positions.Count;
         componentLineRenderer.SetPositions(positions.ToArray());

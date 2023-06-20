@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-
+using System.Collections.Generic;
 public class Maze
 {
     public MazeGeneratorCell[,] cells;
-    public Vector2Int finishPosition;
+    public List<Vector2Int> finishPosition = new List<Vector2Int>(3);
 }
 
 public class MazeGeneratorCell

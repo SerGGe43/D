@@ -16,7 +16,8 @@ public class MazeGenerator : MonoBehaviour
 
     public bool ReadyToSolve = false;
     public HintRenderer hintRenderer;
-
+    public HintRenderer hintRenderer1;
+    public HintRenderer hintRenderer2;
     private void Start()
     {
         StartCoroutine(GenerateMaze());
@@ -24,8 +25,18 @@ public class MazeGenerator : MonoBehaviour
 
     private void Update()
     {
-        if (ReadyToSolve && Input.GetKey(KeyCode.H)) StartCoroutine(hintRenderer.DrawPath());
-        if (ReadyToSolve && Input.GetKey(KeyCode.L)) StartCoroutine(hintRenderer.Lee());
+        if (ReadyToSolve && Input.GetKey(KeyCode.H))
+        {
+            StartCoroutine(hintRenderer.DrawPath(maze.finishPosition[0].x, maze.finishPosition[0].y));
+            StartCoroutine(hintRenderer1.DrawPath(maze.finishPosition[1].x, maze.finishPosition[1].y));
+            StartCoroutine(hintRenderer2.DrawPath(maze.finishPosition[2].x, maze.finishPosition[2].y));
+        }
+        if (ReadyToSolve && Input.GetKey(KeyCode.L))
+        {
+            StartCoroutine(hintRenderer.Lee0(maze.finishPosition[0].x, maze.finishPosition[0].y));
+            StartCoroutine(hintRenderer1.Lee0(maze.finishPosition[1].x, maze.finishPosition[1].y));
+            StartCoroutine(hintRenderer2.Lee0(maze.finishPosition[2].x, maze.finishPosition[2].y));
+        }
     }
 
     public Maze CreateMaze()
@@ -144,8 +155,10 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
-    private Vector2Int PlaceMazeExit()
+    private List<Vector2Int> PlaceMazeExit()
     {
+        List<Vector2Int> finish = new List<Vector2Int>();
+        Vector2Int finishPos = new Vector2Int();
         MazeGeneratorCell furthest = maze.cells[0, 0];
 
         for (int x = 0; x < maze.cells.GetLength(0); x++)
@@ -180,8 +193,66 @@ public class MazeGenerator : MonoBehaviour
         	maze.cells[furthest.X, furthest.Y + 1].WallBottom = false;
         	cells[furthest.X][furthest.Y + 1].WallBottom.SetActive(false);
         }
-
-        return new Vector2Int(furthest.X, furthest.Y);
+        finishPos.Set(furthest.X, furthest.Y);
+        finish.Add(finishPos);
+        MazeGeneratorCell finishCell;
+        if (furthest.Y == Height - 2)
+        {
+            finishPos.Set(0, UnityEngine.Random.Range(3, Height - 3));
+            finish.Add(finishPos);
+            finishCell = maze.cells[finishPos[0], finishPos[1]];
+            finishCell.WallLeft = false;
+            cells[finishPos[0]][finishPos[1]].WallLeft.SetActive(false);
+            //
+            finishPos.Set(Width - 2, UnityEngine.Random.Range(0, Height - 3));
+            finish.Add(finishPos);
+            finishCell = maze.cells[finishPos[0] + 1, finishPos[1]];
+            finishCell.WallLeft = false;
+            cells[finishPos[0] + 1][finishPos[1]].WallLeft.SetActive(false);
+        }
+        else if (furthest.Y == 0)
+        {
+            finishPos.Set(UnityEngine.Random.Range(0, Width - 3), Height - 2);
+            finish.Add(finishPos);
+            finishCell = maze.cells[finishPos[0], finishPos[1] + 1];
+            finishCell.WallBottom = false;
+            cells[finishPos[0]][finishPos[1] + 1].WallBottom.SetActive(false);
+            //
+            finishPos.Set(Width - 2, UnityEngine.Random.Range(1, Height - 3));
+            finish.Add(finishPos);
+            finishCell = maze.cells[finishPos[0] + 1, finishPos[1]];
+            finishCell.WallLeft = false;
+            cells[finishPos[0] + 1][finishPos[1]].WallLeft.SetActive(false);
+        }
+        else if (furthest.X == Width - 2)
+        {
+            finishPos.Set(0, UnityEngine.Random.Range(3, Height - 3));
+            finish.Add(finishPos);
+            finishCell = maze.cells[finishPos[0], finishPos[1]];
+            finishCell.WallLeft = false;
+            cells[finishPos[0]][finishPos[1]].WallLeft.SetActive(false);
+            //
+            finishPos.Set(UnityEngine.Random.Range(3, Width - 3), 0);
+            finish.Add(finishPos);
+            finishCell = maze.cells[finishPos[0], finishPos[1]];
+            finishCell.WallBottom = false;
+            cells[finishPos[0]][finishPos[1]].WallBottom.SetActive(false);
+        }
+        else if (furthest.X == 0)
+        {
+            finishPos.Set(UnityEngine.Random.Range(0, Height - 3), Height - 2);
+            finish.Add(finishPos);
+            finishCell = maze.cells[finishPos[0], finishPos[1] + 1];
+            finishCell.WallBottom = false;
+            cells[finishPos[0]][finishPos[1] + 1].WallBottom.SetActive(false);
+            //
+            finishPos.Set(Width - 2, UnityEngine.Random.Range(0, Height - 3));
+            finish.Add(finishPos);
+            finishCell = maze.cells[finishPos[0] + 1, finishPos[1]];
+            finishCell.WallLeft = false;
+            cells[finishPos[0] + 1][finishPos[1]].WallLeft.SetActive(false);
+        }
+        return finish;
     }
 
     void pause ()
