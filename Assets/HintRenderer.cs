@@ -95,10 +95,8 @@ public class HintRenderer : MonoBehaviour
         d = 0;
         //int[,] distance = new int[width,height];
         maze.cells[ax,ay].DistanceFromStart = 0;
-        Debug.Log("Do");
         do
         {
-            Debug.Log("Cycle");
             stop = true;
             for (x = 0; x < width-1; x++)
             {
@@ -156,8 +154,11 @@ public class HintRenderer : MonoBehaviour
             }
             d++;
         } while (!stop);
-        Debug.Log("Done");
         len = maze.cells[bx, by].DistanceFromStart;
+
+	
+        componentLineRenderer.SetColors(new Color(1 - len * 0.01f, d * 0.001f, d * 0.01f), Color.red);
+
         d = 0;
         floors = new List<List<Floor>>();
         for (x = 0; x < width - 1; x++)
@@ -165,9 +166,9 @@ public class HintRenderer : MonoBehaviour
             floors.Add(new List<Floor>());
             for (y = 0; y < height - 1; y++)
             {
-                Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                c.floor.SetActive(false);
-                floors[x].Add(c);
+                Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                f.floor.SetActive(false);
+                floors[x].Add(f);
 
             }
         }
@@ -180,8 +181,6 @@ public class HintRenderer : MonoBehaviour
                 {
                     if (maze.cells[x, y].DistanceFromStart == d)
                     {
-                        Debug.Log(x);
-                        Debug.Log(y);
                         floors[x][y].floor.SetActive(true);
                         //Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
                         LineRenderer FloorColor;
@@ -196,21 +195,20 @@ public class HintRenderer : MonoBehaviour
             d++;
         } while (d < len);
         d = len;
-        for (x = width - 2; x > -1; x--)
-        {
-            for (y = height - 2; y > -1; y--)
-            {
-                floors[x][y].floor.SetActive(false);
-                yield return new WaitForSeconds(0.01f);
-            }
-        }
-        floors[0][0].floor.SetActive(false);
+
+	floors.ForEach(delegate(List<Floor> vect)
+	{
+		vect.ForEach(delegate(Floor item)
+		{
+			item.floor.SetActive(false);
+		});
+	});
+
+
         x = bx;
         y = by;
-        Debug.Log("While");
         while (d > 0)
         {
-            Debug.Log("Cycle2");
             positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, (y) * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
             componentLineRenderer.positionCount = positions.Count;
             componentLineRenderer.SetPositions(positions.ToArray());
@@ -265,9 +263,8 @@ public class HintRenderer : MonoBehaviour
                 }
             }
         }
-        //positions.Clear();
-        floors[0][0].floor.SetActive(false);
-        Debug.Log("NeWhile");
+        // positions.Clear();
+        // floors[0][0].floor.SetActive(false);
         positions.Add(Vector3.zero);
         componentLineRenderer.positionCount = positions.Count;
         componentLineRenderer.SetPositions(positions.ToArray());
