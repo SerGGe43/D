@@ -187,7 +187,16 @@ public class HintRenderer : MonoBehaviour
                         //Floor c = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
                         LineRenderer FloorColor;
                         FloorColor = floors[x][y].floor.GetComponent<LineRenderer>();
-                        FloorColor.SetColors(new Color(1 - d * 0.01f, d*0.001f, d * 0.01f), new Color(1 - d * 0.01f, d * 0.001f, d * 0.01f));
+                        
+                            FloorColor.SetColors(new Color(1 - d * 0.01f, d * 0.001f, d * 0.01f), 
+                                new Color(1 - d * 0.01f, d * 0.001f, d * 0.01f));
+                        
+                        /*else if (d > 0)
+                        {
+                            FloorColor.SetColors(new Color(d * 0.01f, d * 0.001f, 1 - d * 0.01f), new Color(d * 0.01f, d * 0.001f, 1- d * 0.01f));
+                        }*/
+                      
+
                         //floors[x].Add(c);
                         //c.floor.SetActive(true);
                         yield return new WaitForSeconds(HintRenderTimeout);
@@ -295,5 +304,164 @@ public class HintRenderer : MonoBehaviour
         componentLineRenderer.positionCount = positions.Count;
         componentLineRenderer.SetPositions(positions.ToArray());
         positions.Clear();
+    }
+
+    public IEnumerator<object> WallPath(int bx, int by)
+    {
+        //Debug.Log(bx);
+        //Debug.Log(by);
+        List<Vector3> positions = new List<Vector3>();
+        int x = 0;
+        int y = 0;
+        long wall = 0;
+        while (x != bx || y != by)
+        { 
+
+            while (wall == 0) // вверх
+            {
+                if (MazeSpawner.maze.cells[x + 1, y].WallLeft)
+                {
+
+
+                    if (!MazeSpawner.maze.cells[x, y + 1].WallBottom)
+                    {
+                        y++;
+                        Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                        yield return new WaitForSeconds(1f);
+                        positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                        //break;
+                    }
+                    if (MazeSpawner.maze.cells[x, y + 1].WallBottom && (MazeSpawner.maze.cells[x + 1, y].WallLeft || ((x + 1) > MazeSpawner.Width - 1) && !MazeSpawner.maze.cells[x + 1, y].WallLeft))
+                    {
+                        wall = 3;
+                        //break;
+                    }
+                   
+                }
+                else if ((x + 1) < MazeSpawner.Width - 1)
+                {
+                    x++;
+                    Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                    yield return new WaitForSeconds(1f);
+                    wall = 1;
+
+                }
+              
+            }
+
+            if (x == bx && y == by) break;
+
+            while (wall == 1) // вправо
+            {
+                if (MazeSpawner.maze.cells[x, y].WallBottom)
+                {
+
+
+                    if (!MazeSpawner.maze.cells[x + 1, y].WallLeft)
+                    {
+                        x++;
+                        positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                        //break;
+                        Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                        yield return new WaitForSeconds(1f);
+                    }
+                    if (MazeSpawner.maze.cells[x, y].WallBottom && (MazeSpawner.maze.cells[x + 1, y].WallLeft || (y - 1) < 0 && MazeSpawner.maze.cells[x, y].WallBottom))
+                    {
+                        wall = 0;
+                        //break;
+                    }
+                }
+                else if (y > 0)
+                {
+                    wall = 2;
+                    y--;
+                    Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                    yield return new WaitForSeconds(1f);
+                }
+                
+
+
+
+
+
+
+
+            }
+            if (x == bx && y == by) break;
+            while (wall == 2) // вниз
+            {
+                if (MazeSpawner.maze.cells[x, y].WallLeft)
+                {
+                    if (!MazeSpawner.maze.cells[x, y].WallBottom)
+                    {
+                        y--;
+                        Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                        yield return new WaitForSeconds(1f);
+                        positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                        //break;
+                    }
+                    if (MazeSpawner.maze.cells[x, y].WallBottom && (MazeSpawner.maze.cells[x, y].WallLeft || (!MazeSpawner.maze.cells[x, y].WallLeft && (x-1) < 0)))
+                    {
+                        wall = 1;
+                        //break;
+                    }
+                }
+                else if (x > 0)
+                {
+                    x--;
+                    Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                    yield return new WaitForSeconds(1f);
+                    wall = 3;
+                }
+               
+
+
+
+            }
+            if (x == bx && y == by) break;
+            while (wall == 3) // влево
+            {
+                if (MazeSpawner.maze.cells[x, y + 1].WallBottom)
+                {
+
+
+                    if (!MazeSpawner.maze.cells[x, y].WallLeft)
+                    {
+                        x--;
+                        Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                        yield return new WaitForSeconds(1f);
+                        positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                        //break;
+                    }
+                    if (MazeSpawner.maze.cells[x, y + 1].WallBottom && (MazeSpawner.maze.cells[x, y].WallLeft || (!MazeSpawner.maze.cells[x, y + 1].WallBottom && (y + 1) > MazeSpawner.Height - 1)))
+                    {
+                        wall = 2;
+                        //break;
+                    }
+                }
+                else if ((y + 1) < MazeSpawner.Height - 1)
+                {
+                    y++;
+                    Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                    yield return new WaitForSeconds(1f);
+                    wall = 0;
+                }
+                
+
+
+
+
+
+
+            }
+            if (x == bx && y == by) break;
+            //Debug.Log(x);
+            //Debug.Log(y);
+            yield return null;
+
+        }
+        componentLineRenderer.positionCount = positions.Count;
+        componentLineRenderer.SetPositions(positions.ToArray());
+        yield return null;
     }
 }

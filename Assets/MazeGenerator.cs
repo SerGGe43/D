@@ -37,6 +37,12 @@ public class MazeGenerator : MonoBehaviour
             StartCoroutine(hintRenderer1.Lee0(maze.finishPosition[1].x, maze.finishPosition[1].y));
             StartCoroutine(hintRenderer2.Lee0(maze.finishPosition[2].x, maze.finishPosition[2].y));
         }
+        if (ReadyToSolve && Input.GetKey(KeyCode.K))
+        {
+            StartCoroutine(hintRenderer.WallPath(8, 8));
+           // StartCoroutine(hintRenderer1.WallPath(maze.finishPosition[1].x, maze.finishPosition[1].y));
+           // StartCoroutine(hintRenderer2.WallPath(maze.finishPosition[2].x, maze.finishPosition[2].y));
+        }
     }
 
     public Maze CreateMaze()
