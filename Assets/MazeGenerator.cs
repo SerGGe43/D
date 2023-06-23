@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Threading;
 using UnityEngine;
+using System.Diagnostics;
+using System.IO;
 
 public class MazeGenerator : MonoBehaviour
 {
@@ -18,9 +20,11 @@ public class MazeGenerator : MonoBehaviour
     public HintRenderer hintRenderer;
     public HintRenderer hintRenderer1;
     public HintRenderer hintRenderer2;
+    public Stopwatch sw;
     private void Start()
     {
         StartCoroutine(GenerateMaze());
+        sw = new Stopwatch();
     }
 
     private void Update()
@@ -33,15 +37,17 @@ public class MazeGenerator : MonoBehaviour
         }
         if (ReadyToSolve && Input.GetKey(KeyCode.L))
         {
+            sw.Start();
             StartCoroutine(hintRenderer.Lee0(maze.finishPosition[0].x, maze.finishPosition[0].y));
             StartCoroutine(hintRenderer1.Lee0(maze.finishPosition[1].x, maze.finishPosition[1].y));
             StartCoroutine(hintRenderer2.Lee0(maze.finishPosition[2].x, maze.finishPosition[2].y));
+            sw.Stop();
         }
         if (ReadyToSolve && Input.GetKey(KeyCode.K))
         {
-            StartCoroutine(hintRenderer.WallPath(8, 8));
-           // StartCoroutine(hintRenderer1.WallPath(maze.finishPosition[1].x, maze.finishPosition[1].y));
-           // StartCoroutine(hintRenderer2.WallPath(maze.finishPosition[2].x, maze.finishPosition[2].y));
+            StartCoroutine(hintRenderer.WallPath(maze.finishPosition[0].x, maze.finishPosition[0].y));
+            StartCoroutine(hintRenderer1.WallPath(maze.finishPosition[1].x, maze.finishPosition[1].y));
+            StartCoroutine(hintRenderer2.WallPath(maze.finishPosition[2].x, maze.finishPosition[2].y));
         }
     }
 
@@ -263,7 +269,9 @@ public class MazeGenerator : MonoBehaviour
 
     void pause ()
     {
-
+        //StreamWriter writer = new StreamWriter(path, true)
+        //await writer.WriteLine("Addition");
+            //await writer.WriteAsync("4,5");
     }
 }
 
