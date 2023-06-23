@@ -134,6 +134,10 @@ public class MazeGenerator : MonoBehaviour
             }
         } while (stack.Count > 0);
 
+
+        PlaceCycles();
+
+
         maze.finishPosition = PlaceMazeExit();
 
         yield return new WaitForSeconds(MazeRenderTimeout);
@@ -166,6 +170,20 @@ public class MazeGenerator : MonoBehaviour
             {
             	b.WallLeft = false;
             	cells[b.X][b.Y].WallLeft.SetActive(false);
+            }
+        }
+    }
+
+    private void PlaceCycles()
+    {
+        for (int i = 0; i < Width / 3;)
+        {
+            int x = UnityEngine.Random.Range(2, Width - 2);
+            int y = UnityEngine.Random.Range(2, Height - 2);
+            if (maze.cells[x, y].WallBottom)
+            {
+            i++;
+                RemoveWall(new MazeGeneratorCell {X = x, Y = y}, new MazeGeneratorCell {X = x, Y = y - 1});
             }
         }
     }
