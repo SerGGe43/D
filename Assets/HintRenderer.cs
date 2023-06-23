@@ -319,6 +319,9 @@ public class HintRenderer : MonoBehaviour
         int x = 0;
         int y = 0;
         long wall = 0;
+        positions.Add(Vector3.zero);
+        componentLineRenderer.positionCount = positions.Count;
+        componentLineRenderer.SetPositions(positions.ToArray());
         while (x != bx || y != by)
         { 
 
@@ -328,29 +331,35 @@ public class HintRenderer : MonoBehaviour
                 {
 
 
-                    if (!MazeSpawner.maze.cells[x, y + 1].WallBottom)
+                    if (!MazeSpawner.maze.cells[x, y + 1].WallBottom && y + 1 < MazeSpawner.Height - 1)
                     {
                         y++;
-                        Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                        yield return new WaitForSeconds(1f);
+                        //Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
                         positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                        componentLineRenderer.positionCount = positions.Count;
+                        componentLineRenderer.SetPositions(positions.ToArray());
+                        yield return new WaitForSeconds(0.05f);
                         //break;
                     }
-                    if (MazeSpawner.maze.cells[x, y + 1].WallBottom && (MazeSpawner.maze.cells[x + 1, y].WallLeft || ((x + 1) > MazeSpawner.Width - 1) && !MazeSpawner.maze.cells[x + 1, y].WallLeft))
+                    if ((MazeSpawner.maze.cells[x, y + 1].WallBottom || y + 1 >= MazeSpawner.Height - 1) && (MazeSpawner.maze.cells[x + 1, y].WallLeft || x + 1 >= MazeSpawner.Width - 1))
                     {
                         wall = 3;
                         //break;
                     }
-                   
+
                 }
                 else if ((x + 1) < MazeSpawner.Width - 1)
                 {
                     x++;
-                    Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                    yield return new WaitForSeconds(1f);
+                    //Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                    positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                    componentLineRenderer.positionCount = positions.Count;
+                    componentLineRenderer.SetPositions(positions.ToArray());
+                    yield return new WaitForSeconds(0.05f);
                     wall = 1;
-
+                    //break;
                 }
+                else wall = 3;
               
             }
 
@@ -362,15 +371,18 @@ public class HintRenderer : MonoBehaviour
                 {
 
 
-                    if (!MazeSpawner.maze.cells[x + 1, y].WallLeft)
+                    if (!MazeSpawner.maze.cells[x + 1, y].WallLeft && (x + 1) < MazeSpawner.Width - 1)
                     {
                         x++;
                         positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                        componentLineRenderer.positionCount = positions.Count;
+                        componentLineRenderer.SetPositions(positions.ToArray());
                         //break;
-                        Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                        yield return new WaitForSeconds(1f);
+                        //Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                        yield return new WaitForSeconds(0.05f);
+                        //break;
                     }
-                    if (MazeSpawner.maze.cells[x, y].WallBottom && (MazeSpawner.maze.cells[x + 1, y].WallLeft || (y - 1) < 0 && MazeSpawner.maze.cells[x, y].WallBottom))
+                    if ((MazeSpawner.maze.cells[x, y].WallBottom || y - 1 < 0) && (MazeSpawner.maze.cells[x + 1, y].WallLeft || x + 1 >= MazeSpawner.Width - 1))
                     {
                         wall = 0;
                         //break;
@@ -380,9 +392,14 @@ public class HintRenderer : MonoBehaviour
                 {
                     wall = 2;
                     y--;
-                    Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                    yield return new WaitForSeconds(1f);
+                    //Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                    positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                    componentLineRenderer.positionCount = positions.Count;
+                    componentLineRenderer.SetPositions(positions.ToArray());
+                    yield return new WaitForSeconds(0.05f);
+                    //break;
                 }
+                else wall = 0;
                 
 
 
@@ -397,15 +414,18 @@ public class HintRenderer : MonoBehaviour
             {
                 if (MazeSpawner.maze.cells[x, y].WallLeft)
                 {
-                    if (!MazeSpawner.maze.cells[x, y].WallBottom)
+                    if (!MazeSpawner.maze.cells[x, y].WallBottom && (y - 1) > -1)
                     {
                         y--;
-                        Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                        yield return new WaitForSeconds(1f);
+                        //Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
                         positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                        componentLineRenderer.positionCount = positions.Count;
+                        componentLineRenderer.SetPositions(positions.ToArray());
+                        yield return new WaitForSeconds(0.05f);
+                        //break;
                         //break;
                     }
-                    if (MazeSpawner.maze.cells[x, y].WallBottom && (MazeSpawner.maze.cells[x, y].WallLeft || (!MazeSpawner.maze.cells[x, y].WallLeft && (x-1) < 0)))
+                    if ((MazeSpawner.maze.cells[x, y].WallBottom || y - 1 < 0) && (MazeSpawner.maze.cells[x, y].WallLeft || x - 1 < 0))
                     {
                         wall = 1;
                         //break;
@@ -414,10 +434,15 @@ public class HintRenderer : MonoBehaviour
                 else if (x > 0)
                 {
                     x--;
-                    Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                    yield return new WaitForSeconds(1f);
+                    //Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                    positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                    componentLineRenderer.positionCount = positions.Count;
+                    componentLineRenderer.SetPositions(positions.ToArray());
+                    yield return new WaitForSeconds(0.05f);
                     wall = 3;
+                    //break;
                 }
+                else wall = 1;
                
 
 
@@ -430,15 +455,17 @@ public class HintRenderer : MonoBehaviour
                 {
 
 
-                    if (!MazeSpawner.maze.cells[x, y].WallLeft)
+                    if (!MazeSpawner.maze.cells[x, y].WallLeft && (x - 1) > -1)
                     {
                         x--;
-                        Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                        yield return new WaitForSeconds(1f);
+                        //Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
                         positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                        componentLineRenderer.positionCount = positions.Count;
+                        componentLineRenderer.SetPositions(positions.ToArray());
+                        yield return new WaitForSeconds(0.05f);
                         //break;
                     }
-                    if (MazeSpawner.maze.cells[x, y + 1].WallBottom && (MazeSpawner.maze.cells[x, y].WallLeft || (!MazeSpawner.maze.cells[x, y + 1].WallBottom && (y + 1) > MazeSpawner.Height - 1)))
+                    if ((MazeSpawner.maze.cells[x, y + 1].WallBottom || y + 1 >= MazeSpawner.Height - 1) && (MazeSpawner.maze.cells[x, y].WallLeft || x - 1 < 0))
                     {
                         wall = 2;
                         //break;
@@ -447,10 +474,15 @@ public class HintRenderer : MonoBehaviour
                 else if ((y + 1) < MazeSpawner.Height - 1)
                 {
                     y++;
-                    Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
-                    yield return new WaitForSeconds(1f);
+                    //Floor f = Instantiate(FloorPrefab, new Vector3(x * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, y * MazeSpawner.CellSize.z), Quaternion.identity);
+                    positions.Add(new Vector3((x) * MazeSpawner.CellSize.x, y * MazeSpawner.CellSize.y, MazeSpawner.CellSize.z));
+                    componentLineRenderer.positionCount = positions.Count;
+                    componentLineRenderer.SetPositions(positions.ToArray());
+                    yield return new WaitForSeconds(0.05f);
+                    //break;
                     wall = 0;
                 }
+                else wall = 2;
                 
 
 
