@@ -18,6 +18,11 @@ public class HintRenderer : MonoBehaviour
         componentLineRenderer = GetComponent<LineRenderer>();
     }
 
+    public void Clear() {
+        componentLineRenderer.positionCount = 0;
+        componentLineRenderer.SetPositions(new List<Vector3>().ToArray());
+    }
+
     public IEnumerator<object> DrawPath(int x, int y)
     {
         //componentLineRenderer.SetColors(Color.green, Color.green);
