@@ -31,13 +31,21 @@ public class MazeGenerator : MonoBehaviour
     {
         if (ReadyToSolve && Input.GetKey(KeyCode.H))
         {
+            hintRenderer.Clear();
+            hintRenderer1.Clear();
+            hintRenderer2.Clear();
             StartCoroutine(hintRenderer.DrawPath(maze.finishPosition[0].x, maze.finishPosition[0].y));
             StartCoroutine(hintRenderer1.DrawPath(maze.finishPosition[1].x, maze.finishPosition[1].y));
             StartCoroutine(hintRenderer2.DrawPath(maze.finishPosition[2].x, maze.finishPosition[2].y));
         }
         if (ReadyToSolve && Input.GetKey(KeyCode.L))
         {
+
             sw.Start();
+
+            hintRenderer.Clear();
+            hintRenderer1.Clear();
+            hintRenderer2.Clear();
             StartCoroutine(hintRenderer.Lee0(maze.finishPosition[0].x, maze.finishPosition[0].y));
             StartCoroutine(hintRenderer1.Lee0(maze.finishPosition[1].x, maze.finishPosition[1].y));
             StartCoroutine(hintRenderer2.Lee0(maze.finishPosition[2].x, maze.finishPosition[2].y));
@@ -48,6 +56,12 @@ public class MazeGenerator : MonoBehaviour
             StartCoroutine(hintRenderer.WallPath(maze.finishPosition[0].x, maze.finishPosition[0].y));
             StartCoroutine(hintRenderer1.WallPath(maze.finishPosition[1].x, maze.finishPosition[1].y));
             StartCoroutine(hintRenderer2.WallPath(maze.finishPosition[2].x, maze.finishPosition[2].y));
+            hintRenderer.Clear();
+            hintRenderer1.Clear();
+            hintRenderer2.Clear();
+            StartCoroutine(hintRenderer.WallPath(8, 8));
+           // StartCoroutine(hintRenderer1.WallPath(maze.finishPosition[1].x, maze.finishPosition[1].y));
+           // StartCoroutine(hintRenderer2.WallPath(maze.finishPosition[2].x, maze.finishPosition[2].y));
         }
     }
 
