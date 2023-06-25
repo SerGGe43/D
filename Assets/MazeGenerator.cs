@@ -22,7 +22,6 @@ public class MazeGenerator : MonoBehaviour
     public HintRenderer hintRenderer;
     public HintRenderer hintRenderer1;
     public HintRenderer hintRenderer2;
-    public Stopwatch sw;
 
     private void Start()
     {
@@ -34,7 +33,6 @@ public class MazeGenerator : MonoBehaviour
         {
         	StartCoroutine(EllerGenerate());
         }
-        // sw = new Stopwatch();
     }
 
     private void Update()
@@ -50,16 +48,12 @@ public class MazeGenerator : MonoBehaviour
         }
         if (ReadyToSolve && Input.GetKey(KeyCode.L))
         {
-
-            // sw.Start();
-
             hintRenderer.Clear();
             hintRenderer1.Clear();
             hintRenderer2.Clear();
             StartCoroutine(hintRenderer.Lee0(maze.finishPosition[0].x, maze.finishPosition[0].y));
             StartCoroutine(hintRenderer1.Lee0(maze.finishPosition[1].x, maze.finishPosition[1].y));
             StartCoroutine(hintRenderer2.Lee0(maze.finishPosition[2].x, maze.finishPosition[2].y));
-            // sw.Stop();
         }
         if (ReadyToSolve && Input.GetKey(KeyCode.K))
         {
@@ -70,8 +64,6 @@ public class MazeGenerator : MonoBehaviour
             hintRenderer1.Clear();
             hintRenderer2.Clear();
             StartCoroutine(hintRenderer.WallPath(8, 8));
-           // StartCoroutine(hintRenderer1.WallPath(maze.finishPosition[1].x, maze.finishPosition[1].y));
-           // StartCoroutine(hintRenderer2.WallPath(maze.finishPosition[2].x, maze.finishPosition[2].y));
         }
     }
 
@@ -324,64 +316,62 @@ public class MazeGenerator : MonoBehaviour
         current.Visited = true;
         current.DistanceFromStart = 0;
 
-        // Stack<MazeGeneratorCell> stack = new Stack<MazeGeneratorCell>();
-        // do
-        // {
-        //     List<MazeGeneratorCell> unvisitedNeighbours = new List<MazeGeneratorCell>();
-
-        //     int x = current.X;
-        //     int y = current.Y;
-
-        //     if (x > 0 && !maze.cells[x - 1, y].Visited && !current.WallLeft) unvisitedNeighbours.Add(maze.cells[x - 1, y]);
-        //     if (y > 0 && !maze.cells[x, y - 1].Visited && !current.WallBottom) unvisitedNeighbours.Add(maze.cells[x, y - 1]);
-        //     if (x < Width - 2 && !maze.cells[x + 1, y].Visited && !maze.cells[x + 1, y].WallLeft) unvisitedNeighbours.Add(maze.cells[x + 1, y]);
-        //     if (y < Height - 2 && !maze.cells[x, y + 1].Visited && !maze.cells[x, y + 1].WallBottom) unvisitedNeighbours.Add(maze.cells[x, y + 1]);
-
-        //     if (unvisitedNeighbours.Count > 0)
-        //     {
-        //         MazeGeneratorCell chosen = unvisitedNeighbours[UnityEngine.Random.Range(0, unvisitedNeighbours.Count)];
-        //         // RemoveWall(current, chosen);
-        //         chosen.Visited = true;
-        //         stack.Push(chosen);
-        //         chosen.DistanceFromStart = current.DistanceFromStart + 1;
-        //         current = chosen;
-        //         // yield return new WaitForSeconds(MazeRenderTimeout);
-        //     }
-        //     else if (stack.Count > 0)
-        //     {
-        //         current = stack.Pop();
-        //     }
-        // } while (stack.Count > 0);
-
-
-        for (int i = 0; i < Width * Height; i++)
+        Stack<MazeGeneratorCell> stack = new Stack<MazeGeneratorCell>();
+        do
         {
-        	for (int x = 0; x < Width - 1; x++)
-        	{
-        		for (int y = 0; y < Height - 1; y++)
-        		{
-					if (x > 0 && !maze.cells[x, y].WallLeft && maze.cells[x - 1, y].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
-					{
-						maze.cells[x, y].DistanceFromStart = maze.cells[x - 1, y].DistanceFromStart + 1;
-					}
-				
-					if (y > 0 && !maze.cells[x, y].WallBottom && maze.cells[x, y - 1].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
-					{
-						maze.cells[x, y].DistanceFromStart = maze.cells[x, y - 1].DistanceFromStart + 1;
-					}
-				
-					if (x < Width - 2 && !maze.cells[x + 1, y].WallLeft && maze.cells[x + 1, y].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
-					{
-						maze.cells[x, y].DistanceFromStart = maze.cells[x + 1, y].DistanceFromStart + 1;
-					}
+            List<MazeGeneratorCell> unvisitedNeighbours = new List<MazeGeneratorCell>();
 
-					if (y < Height - 2 && !maze.cells[x, y + 1].WallBottom && maze.cells[x, y + 1].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
-					{
-						maze.cells[x, y].DistanceFromStart = maze.cells[x, y + 1].DistanceFromStart + 1;
-					}
-        		}
-        	}
-        }
+            int x = current.X;
+            int y = current.Y;
+
+            if (x > 0 && !maze.cells[x - 1, y].Visited && !current.WallLeft) unvisitedNeighbours.Add(maze.cells[x - 1, y]);
+            if (y > 0 && !maze.cells[x, y - 1].Visited && !current.WallBottom) unvisitedNeighbours.Add(maze.cells[x, y - 1]);
+            if (x < Width - 2 && !maze.cells[x + 1, y].Visited && !maze.cells[x + 1, y].WallLeft) unvisitedNeighbours.Add(maze.cells[x + 1, y]);
+            if (y < Height - 2 && !maze.cells[x, y + 1].Visited && !maze.cells[x, y + 1].WallBottom) unvisitedNeighbours.Add(maze.cells[x, y + 1]);
+
+            if (unvisitedNeighbours.Count > 0)
+            {
+                MazeGeneratorCell chosen = unvisitedNeighbours[UnityEngine.Random.Range(0, unvisitedNeighbours.Count)];
+                chosen.Visited = true;
+                stack.Push(chosen);
+                chosen.DistanceFromStart = current.DistanceFromStart + 1;
+                current = chosen;
+            }
+            else if (stack.Count > 0)
+            {
+                current = stack.Pop();
+            }
+        } while (stack.Count > 0);
+
+
+    //     for (int i = 0; i < Width * Height; i++)
+    //     {
+    //     	for (int x = 0; x < Width - 1; x++)
+    //     	{
+    //     		for (int y = 0; y < Height - 1; y++)
+    //     		{
+				// 	if (x > 0 && !maze.cells[x, y].WallLeft && maze.cells[x - 1, y].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
+				// 	{
+				// 		maze.cells[x, y].DistanceFromStart = maze.cells[x - 1, y].DistanceFromStart + 1;
+				// 	}
+				
+				// 	if (y > 0 && !maze.cells[x, y].WallBottom && maze.cells[x, y - 1].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
+				// 	{
+				// 		maze.cells[x, y].DistanceFromStart = maze.cells[x, y - 1].DistanceFromStart + 1;
+				// 	}
+				
+				// 	if (x < Width - 2 && !maze.cells[x + 1, y].WallLeft && maze.cells[x + 1, y].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
+				// 	{
+				// 		maze.cells[x, y].DistanceFromStart = maze.cells[x + 1, y].DistanceFromStart + 1;
+				// 	}
+
+				// 	if (y < Height - 2 && !maze.cells[x, y + 1].WallBottom && maze.cells[x, y + 1].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
+				// 	{
+				// 		maze.cells[x, y].DistanceFromStart = maze.cells[x, y + 1].DistanceFromStart + 1;
+				// 	}
+    //     		}
+    //     	}
+    //     }
     }
 
     public IEnumerator EllerGenerate()
@@ -413,7 +403,7 @@ public class MazeGenerator : MonoBehaviour
     	}
     	CreateLastRow();
 
-  //   	if (Cycles) PlaceCycles();
+     	if (Cycles) PlaceCycles();
 		CountDistance();
     	PlaceMazeExit();
     }
@@ -537,13 +527,6 @@ public class MazeGenerator : MonoBehaviour
     			}
     		}
     	}
-    }
-
-    void pause ()
-    {
-        //StreamWriter writer = new StreamWriter(path, true)
-        //await writer.WriteLine("Addition");
-            //await writer.WriteAsync("4,5");
     }
 }
 
