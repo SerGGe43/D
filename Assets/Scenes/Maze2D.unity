@@ -1131,7 +1131,7 @@ MonoBehaviour:
   CellSize: {x: 1, y: 1, z: 0}
   Width: 15
   Height: 15
-  Cycles: 1
+  Cycles: 0
   Eller: 1
   ReadyToSolve: 0
   hintRenderer: {fileID: 436242421}
