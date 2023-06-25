@@ -11,6 +11,8 @@ public class MazeGeneratorCell
     public int X;
     public int Y;
 
+    public int Set;
+
     public bool WallLeft = true;
     public bool WallBottom = true;
 

@@ -15,16 +15,26 @@ public class MazeGenerator : MonoBehaviour
     public Maze maze;
     public List<List<Cell>> cells;
     public static float MazeRenderTimeout = 0.01f;
+    public bool Cycles = false;
+    public bool Eller = false;
 
     public bool ReadyToSolve = false;
     public HintRenderer hintRenderer;
     public HintRenderer hintRenderer1;
     public HintRenderer hintRenderer2;
     public Stopwatch sw;
+
     private void Start()
     {
-        StartCoroutine(GenerateMaze());
-        sw = new Stopwatch();
+        if (!Eller)
+        {
+        	StartCoroutine(GenerateMaze());
+        }
+        else
+        {
+        	StartCoroutine(EllerGenerate());
+        }
+        // sw = new Stopwatch();
     }
 
     private void Update()
@@ -41,7 +51,7 @@ public class MazeGenerator : MonoBehaviour
         if (ReadyToSolve && Input.GetKey(KeyCode.L))
         {
 
-            sw.Start();
+            // sw.Start();
 
             hintRenderer.Clear();
             hintRenderer1.Clear();
@@ -49,7 +59,7 @@ public class MazeGenerator : MonoBehaviour
             StartCoroutine(hintRenderer.Lee0(maze.finishPosition[0].x, maze.finishPosition[0].y));
             StartCoroutine(hintRenderer1.Lee0(maze.finishPosition[1].x, maze.finishPosition[1].y));
             StartCoroutine(hintRenderer2.Lee0(maze.finishPosition[2].x, maze.finishPosition[2].y));
-            sw.Stop();
+            // sw.Stop();
         }
         if (ReadyToSolve && Input.GetKey(KeyCode.K))
         {
@@ -74,6 +84,7 @@ public class MazeGenerator : MonoBehaviour
             for (int y = 0; y < Cells.GetLength(1); y++)
             {
                 Cells[x, y] = new MazeGeneratorCell {X = x, Y = y};
+                Cells[x, y].Set = x + y * (Width - 1);
             }
         }
 
@@ -145,9 +156,7 @@ public class MazeGenerator : MonoBehaviour
             }
         } while (stack.Count > 0);
 
-
-        PlaceCycles();
-
+        if (Cycles) PlaceCycles();
 
         maze.finishPosition = PlaceMazeExit();
 
@@ -193,10 +202,11 @@ public class MazeGenerator : MonoBehaviour
             int y = UnityEngine.Random.Range(2, Height - 2);
             if (maze.cells[x, y].WallBottom)
             {
-            i++;
+            	i++;
                 RemoveWall(new MazeGeneratorCell {X = x, Y = y}, new MazeGeneratorCell {X = x, Y = y - 1});
             }
         }
+        CountDistance();
     }
 
     private List<Vector2Int> PlaceMazeExit()
@@ -297,6 +307,205 @@ public class MazeGenerator : MonoBehaviour
             cells[finishPos[0] + 1][finishPos[1]].WallLeft.SetActive(false);
         }
         return finish;
+    }
+
+    private void CountDistance()
+    {
+    	for (int x = 0; x < Width - 1; x++)
+    	{
+    		for (int y = 0; y < Height - 1; y++)
+    		{
+    			maze.cells[x, y].Visited = false;
+    			maze.cells[x, y].DistanceFromStart = -1;
+    		}
+    	}
+
+    	MazeGeneratorCell current = maze.cells[0, 0];
+        current.Visited = true;
+        current.DistanceFromStart = 0;
+
+        Stack<MazeGeneratorCell> stack = new Stack<MazeGeneratorCell>();
+        do
+        {
+            List<MazeGeneratorCell> unvisitedNeighbours = new List<MazeGeneratorCell>();
+
+            int x = current.X;
+            int y = current.Y;
+
+            if (x > 0 && !maze.cells[x - 1, y].Visited && !current.WallLeft) unvisitedNeighbours.Add(maze.cells[x - 1, y]);
+            if (y > 0 && !maze.cells[x, y - 1].Visited && !current.WallBottom) unvisitedNeighbours.Add(maze.cells[x, y - 1]);
+            if (x < Width - 2 && !maze.cells[x + 1, y].Visited && !maze.cells[x + 1, y].WallLeft) unvisitedNeighbours.Add(maze.cells[x + 1, y]);
+            if (y < Height - 2 && !maze.cells[x, y + 1].Visited && !maze.cells[x, y + 1].WallBottom) unvisitedNeighbours.Add(maze.cells[x, y + 1]);
+
+            if (unvisitedNeighbours.Count > 0)
+            {
+                MazeGeneratorCell chosen = unvisitedNeighbours[UnityEngine.Random.Range(0, unvisitedNeighbours.Count)];
+                // RemoveWall(current, chosen);
+                chosen.Visited = true;
+                stack.Push(chosen);
+                chosen.DistanceFromStart = current.DistanceFromStart + 1;
+                current = chosen;
+                // yield return new WaitForSeconds(MazeRenderTimeout);
+            }
+            else if (stack.Count > 0)
+            {
+                current = stack.Pop();
+            }
+        } while (stack.Count > 0);
+    }
+
+    public IEnumerator EllerGenerate()
+    {
+    	maze = CreateMaze();
+
+    	cells = new List<List<Cell>>();
+
+        for (int x = 0; x < maze.cells.GetLength(0); x++)
+        {
+        	cells.Add(new List<Cell>());
+            for (int y = 0; y < maze.cells.GetLength(1); y++)
+            {
+                Cell c = Instantiate(CellPrefab, new Vector3(x * CellSize.x, y * CellSize.y, y * CellSize.z), Quaternion.identity);
+
+                c.WallLeft.SetActive(maze.cells[x, y].WallLeft);
+                c.WallBottom.SetActive(maze.cells[x, y].WallBottom);
+                cells[x].Add(c);
+            }
+        }
+
+    	for (int i = 0; i < Height - 2; i++)
+    	{
+    		CreateRow(i);
+    		yield return new WaitForSeconds(MazeRenderTimeout);
+
+    		CreateVerticalConnection(i);
+    		yield return new WaitForSeconds(MazeRenderTimeout);
+    	}
+    	CreateLastRow();
+
+		CountDistance();
+    	PlaceMazeExit();
+    }
+    
+    private void ReplaceSetInRow(int oldSet, int newSet, int rowNum)
+    {
+        for(int i = 0; i < Width - 1; i++)
+        {
+            MazeGeneratorCell cell = maze.cells[i, rowNum];
+            if (cell.Set == oldSet)
+            {
+                cell.Set = newSet;
+            }
+        }
+    }
+
+    private void CreateRow(int rowNum)
+    {
+    	for (int i = 0; i < Width - 2; i++)
+    	{
+    		MazeGeneratorCell cell, next;
+    		cell = maze.cells[i, rowNum];
+    		next = maze.cells[i + 1, rowNum];
+
+    		if (cell.Set != next.Set)
+    		{
+    			if (UnityEngine.Random.Range(0, 2) > 0)
+    			{
+    				RemoveWall(cell, next);
+
+	    			if (cell.Set < next.Set)
+	    			{
+	    				ReplaceSetInRow(next.Set, cell.Set, rowNum);
+	    			}
+	    			else
+	    			{
+	    				ReplaceSetInRow(cell.Set, next.Set, rowNum);
+	    			}
+    			}
+    		}
+    	}
+    }
+
+    private void CreateVerticalConnection(int rowNum)
+    {
+    	bool isAddedVertical = false;
+
+    	for (int i = 0; i < Width - 2; i++)
+    	{
+    		MazeGeneratorCell cell, next, top;
+    		cell = maze.cells[i, rowNum];
+    		next = maze.cells[i + 1, rowNum];
+    		top = maze.cells[i, rowNum + 1];
+
+    		if (cell.Set != next.Set)
+    		{
+    			if (!isAddedVertical)
+    			{
+    				RemoveWall(cell, top);
+    				top.Set = cell.Set;
+    			}
+    			isAddedVertical = false;
+    		}
+    		else
+    		{
+    			if (UnityEngine.Random.Range(0, 2) > 0)
+    			{
+    				RemoveWall(cell, top);
+    				top.Set = cell.Set;
+    				isAddedVertical = true;
+    			}
+    		}
+    	}
+
+    	CheckLastVertical(rowNum, isAddedVertical);
+    }
+
+    private void CheckLastVertical(int rowNum, bool isAddedVertical)
+    {
+    	MazeGeneratorCell last, prelast, top;
+    	last = maze.cells[Width - 1 - 1, rowNum];
+    	prelast = maze.cells[Width - 2 - 1, rowNum];
+    	top = maze.cells[Width - 1 - 1, rowNum + 1];
+
+    	if (last.Set != prelast.Set)
+    	{
+    		RemoveWall(last, top);
+    		top.Set = last.Set;
+    	}
+    	else
+    	{
+    		if (isAddedVertical ? UnityEngine.Random.Range(0, 2) > 0 : true)
+    		{
+    			RemoveWall(last, top);
+    			top.Set = last.Set;
+    		}
+    	}
+    }
+
+    private void CreateLastRow()
+    {
+    	int y = Height - 2;
+
+    	for (int i = 0; i < Width - 2; i++)
+    	{
+    		MazeGeneratorCell cell, next;
+    		cell = maze.cells[i, y];
+    		next = maze.cells[i + 1, y];
+
+    		if (cell.Set != next.Set)
+    		{
+    			RemoveWall(cell, next);
+
+    			if (cell.Set < next.Set)
+    			{
+    				ReplaceSetInRow(next.Set, cell.Set, y);
+    			}
+    			else
+    			{
+    				ReplaceSetInRow(cell.Set, next.Set, y);
+    			}
+    		}
+    	}
     }
 
     void pause ()
