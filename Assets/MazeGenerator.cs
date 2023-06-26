@@ -63,7 +63,6 @@ public class MazeGenerator : MonoBehaviour
             hintRenderer.Clear();
             hintRenderer1.Clear();
             hintRenderer2.Clear();
-            StartCoroutine(hintRenderer.WallPath(8, 8));
         }
     }
 
