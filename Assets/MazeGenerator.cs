@@ -197,6 +197,7 @@ public class MazeGenerator : MonoBehaviour
             {
             	i++;
                 RemoveWall(new MazeGeneratorCell {X = x, Y = y}, new MazeGeneratorCell {X = x, Y = y - 1});
+            	maze.cells[x, y].WallBottom = false;
             }
         }
     }
@@ -249,7 +250,7 @@ public class MazeGenerator : MonoBehaviour
             finishCell = maze.cells[finishPos[0], finishPos[1]];
             finishCell.WallLeft = false;
             cells[finishPos[0]][finishPos[1]].WallLeft.SetActive(false);
-            //
+            
             finishPos.Set(Width - 2, UnityEngine.Random.Range(0, Height - 3));
             finish.Add(finishPos);
             finishCell = maze.cells[finishPos[0] + 1, finishPos[1]];
@@ -263,7 +264,7 @@ public class MazeGenerator : MonoBehaviour
             finishCell = maze.cells[finishPos[0], finishPos[1] + 1];
             finishCell.WallBottom = false;
             cells[finishPos[0]][finishPos[1] + 1].WallBottom.SetActive(false);
-            //
+            
             finishPos.Set(Width - 2, UnityEngine.Random.Range(1, Height - 3));
             finish.Add(finishPos);
             finishCell = maze.cells[finishPos[0] + 1, finishPos[1]];
@@ -277,7 +278,7 @@ public class MazeGenerator : MonoBehaviour
             finishCell = maze.cells[finishPos[0], finishPos[1]];
             finishCell.WallLeft = false;
             cells[finishPos[0]][finishPos[1]].WallLeft.SetActive(false);
-            //
+            
             finishPos.Set(UnityEngine.Random.Range(3, Width - 3), 0);
             finish.Add(finishPos);
             finishCell = maze.cells[finishPos[0], finishPos[1]];
@@ -291,7 +292,7 @@ public class MazeGenerator : MonoBehaviour
             finishCell = maze.cells[finishPos[0], finishPos[1] + 1];
             finishCell.WallBottom = false;
             cells[finishPos[0]][finishPos[1] + 1].WallBottom.SetActive(false);
-            //
+            
             finishPos.Set(Width - 2, UnityEngine.Random.Range(0, Height - 3));
             finish.Add(finishPos);
             finishCell = maze.cells[finishPos[0] + 1, finishPos[1]];
@@ -337,41 +338,11 @@ public class MazeGenerator : MonoBehaviour
                 chosen.DistanceFromStart = current.DistanceFromStart + 1;
                 current = chosen;
             }
-            else if (stack.Count > 0)
+            else
             {
-                current = stack.Pop();
+            	current = stack.Pop();
             }
         } while (stack.Count > 0);
-
-
-    //     for (int i = 0; i < Width * Height; i++)
-    //     {
-    //     	for (int x = 0; x < Width - 1; x++)
-    //     	{
-    //     		for (int y = 0; y < Height - 1; y++)
-    //     		{
-				// 	if (x > 0 && !maze.cells[x, y].WallLeft && maze.cells[x - 1, y].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
-				// 	{
-				// 		maze.cells[x, y].DistanceFromStart = maze.cells[x - 1, y].DistanceFromStart + 1;
-				// 	}
-				
-				// 	if (y > 0 && !maze.cells[x, y].WallBottom && maze.cells[x, y - 1].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
-				// 	{
-				// 		maze.cells[x, y].DistanceFromStart = maze.cells[x, y - 1].DistanceFromStart + 1;
-				// 	}
-				
-				// 	if (x < Width - 2 && !maze.cells[x + 1, y].WallLeft && maze.cells[x + 1, y].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
-				// 	{
-				// 		maze.cells[x, y].DistanceFromStart = maze.cells[x + 1, y].DistanceFromStart + 1;
-				// 	}
-
-				// 	if (y < Height - 2 && !maze.cells[x, y + 1].WallBottom && maze.cells[x, y + 1].DistanceFromStart + 1 < maze.cells[x, y].DistanceFromStart)
-				// 	{
-				// 		maze.cells[x, y].DistanceFromStart = maze.cells[x, y + 1].DistanceFromStart + 1;
-				// 	}
-    //     		}
-    //     	}
-    //     }
     }
 
     public IEnumerator EllerGenerate()
@@ -406,6 +377,8 @@ public class MazeGenerator : MonoBehaviour
      	if (Cycles) PlaceCycles();
 		CountDistance();
     	PlaceMazeExit();
+
+    	ReadyToSolve = true;
     }
     
     private void ReplaceSetInRow(int oldSet, int newSet, int rowNum)
